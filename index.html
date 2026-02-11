@@ -2,265 +2,384 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Estrategia Estación 392</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Plan Estratégico Estación 392</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700&family=Lato:wght@300;400;700&display=swap" rel="stylesheet">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;600&display=swap');
-
         :root {
-            --bg-color: #0B1120; /* Azul muy oscuro */
-            --accent-gold: #D4AF37; /* Dorado */
-            --text-light: #F8FAFC;
-            --text-dim: #94A3B8;
+            --bg-deep: #050A14;
+            --bg-card: #0F172A;
+            --gold: #F59E0B;
+            --gold-dim: #B45309;
+            --text-main: #F1F5F9;
+            --text-muted: #94A3B8;
             --success: #10B981;
-            --danger: #EF4444;
+            --accent-blue: #3B82F6;
         }
+
+        * { box-sizing: border-box; }
 
         body {
             margin: 0;
             padding: 0;
-            background-color: var(--bg-color);
-            color: var(--text-light);
-            font-family: 'Montserrat', sans-serif;
+            background-color: var(--bg-deep);
+            color: var(--text-main);
+            font-family: 'Lato', sans-serif;
             overflow: hidden;
             height: 100vh;
+            width: 100vw;
             display: flex;
             flex-direction: column;
         }
 
         /* Slide Container */
-        .slide {
-            display: none;
-            height: 100%;
-            padding: 2rem;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            opacity: 0;
-            transition: opacity 0.5s ease-in-out;
+        .slider-container {
+            flex: 1;
             position: relative;
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+        }
+
+        .slide {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.6s cubic-bezier(0.4, 0.0, 0.2, 1);
+            padding: 2rem;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            transform: scale(0.95);
         }
 
         .slide.active {
-            display: flex;
             opacity: 1;
+            visibility: visible;
+            transform: scale(1);
+            z-index: 10;
         }
 
         /* Typography */
-        h1, h2, h3 {
+        h1 {
             font-family: 'Playfair Display', serif;
-            margin: 0;
+            font-size: 3.5rem;
+            color: var(--text-main);
+            margin-bottom: 0.5rem;
+            text-align: center;
+            line-height: 1.1;
         }
 
-        h1 { font-size: 3.5rem; color: var(--text-light); text-transform: uppercase; letter-spacing: 2px; text-align: center; }
-        h2 { font-size: 2.5rem; color: var(--accent-gold); margin-bottom: 1rem; }
-        .highlight { color: var(--accent-gold); }
-
-        /* Components */
-        .card-grid {
-            display: grid;
-            grid-template-columns: repeat(2, 1fr);
-            gap: 20px;
-            width: 100%;
-            max-width: 900px;
-            margin-top: 20px;
-        }
-
-        .card {
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid rgba(212, 175, 55, 0.2);
-            padding: 20px;
-            border-radius: 12px;
+        h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 2.2rem;
+            color: var(--gold);
+            margin-bottom: 1.5rem;
             text-align: center;
         }
 
-        .metric-big { font-size: 3rem; font-weight: 700; color: var(--text-light); }
-        .metric-label { color: var(--accent-gold); text-transform: uppercase; font-size: 0.8rem; letter-spacing: 1px; }
-        .metric-sub { color: var(--text-dim); font-size: 0.9rem; margin-top: 5px; }
-
-        /* Chart Visualization (CSS) */
-        .chart-container {
-            display: flex;
-            align-items: flex-end;
-            justify-content: center;
-            gap: 30px;
-            height: 300px;
-            width: 100%;
-            max-width: 800px;
-            margin-top: 40px;
-            background: rgba(255,255,255,0.02);
-            padding: 20px;
-            border-radius: 15px;
+        .subtitle {
+            font-size: 1.2rem;
+            color: var(--text-muted);
+            text-align: center;
+            max-width: 600px;
+            margin-bottom: 2rem;
         }
 
-        .bar-group { display: flex; flex-direction: column; align-items: center; width: 100px; }
-        .bar { width: 60px; border-radius: 8px 8px 0 0; transition: height 1s ease; position: relative; }
-        .bar-value { position: absolute; top: -25px; width: 100%; text-align: center; font-weight: bold; }
-        .bar-label { margin-top: 10px; color: var(--text-dim); font-size: 0.9rem; }
+        .highlight-text { color: var(--gold); }
 
-        .bar-current { background: linear-gradient(to top, #64748B, #94A3B8); height: 35%; } /* 1.1M approx */
-        .bar-min { background: linear-gradient(to top, #B45309, #F59E0B); height: 50%; } /* 1.5M */
-        .bar-goal { background: linear-gradient(to top, #15803d, #22c55e); height: 100%; box-shadow: 0 0 20px rgba(34, 197, 94, 0.3); } /* 3M */
+        /* Components */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            width: 100%;
+            max-width: 900px;
+        }
+
+        .card {
+            background: var(--bg-card);
+            border: 1px solid rgba(245, 158, 11, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem;
+            text-align: center;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.3);
+        }
+
+        .big-number {
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: var(--text-main);
+            margin: 0.5rem 0;
+        }
+
+        .label {
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            font-size: 0.75rem;
+            color: var(--text-muted);
+        }
+
+        /* Charts SVG */
+        .chart-svg {
+            width: 100%;
+            max-width: 800px;
+            height: auto;
+            max-height: 40vh;
+            filter: drop-shadow(0 0 10px rgba(245,158,11,0.1));
+        }
 
         /* Navigation */
-        .nav-controls {
-            position: fixed;
-            bottom: 20px;
-            left: 0;
-            right: 0;
+        .nav-bar {
+            height: 80px;
+            background: rgba(15, 23, 42, 0.8);
+            backdrop-filter: blur(10px);
             display: flex;
-            justify-content: center;
-            gap: 20px;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            border-top: 1px solid rgba(255,255,255,0.05);
             z-index: 100;
         }
 
-        button {
+        .nav-btn {
             background: transparent;
-            border: 1px solid var(--accent-gold);
-            color: var(--accent-gold);
-            padding: 10px 20px;
-            border-radius: 30px;
-            cursor: pointer;
-            font-family: 'Montserrat', sans-serif;
+            border: 1px solid var(--gold);
+            color: var(--gold);
+            padding: 0.8rem 1.5rem;
+            border-radius: 50px;
+            font-weight: 700;
             text-transform: uppercase;
-            letter-spacing: 1px;
-            transition: all 0.3s;
+            cursor: pointer;
+            transition: all 0.2s;
         }
 
-        button:hover {
-            background: var(--accent-gold);
-            color: var(--bg-color);
-        }
-
-        /* Specific Slide Styles */
-        .strategy-row {
+        .nav-btn:active { transform: scale(0.95); background: var(--gold); color: var(--bg-deep); }
+        
+        .progress-dots {
             display: flex;
-            justify-content: space-between;
-            width: 100%;
-            max-width: 1000px;
-            margin-top: 30px;
-        }
-        .strategy-item {
-            flex: 1;
-            margin: 0 10px;
-            padding: 20px;
-            background: rgba(11, 17, 32, 0.8);
-            border-left: 3px solid var(--accent-gold);
+            gap: 8px;
         }
         
-        /* Background decorative */
-        .bg-glow {
-            position: absolute;
-            width: 50vw;
-            height: 50vw;
-            background: radial-gradient(circle, rgba(212,175,55,0.05) 0%, rgba(0,0,0,0) 70%);
-            top: -20%;
-            right: -20%;
-            z-index: -1;
+        .dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #334155;
+            transition: all 0.3s;
         }
+        .dot.active { background: var(--gold); width: 24px; border-radius: 10px; }
 
+        /* Responsive adjustments */
+        @media (max-width: 768px) {
+            h1 { font-size: 2.5rem; }
+            h2 { font-size: 1.8rem; }
+            .grid-2 { grid-template-columns: 1fr; gap: 1rem; }
+            .slide { padding: 1rem; }
+        }
     </style>
 </head>
 <body>
 
-    <div class="bg-glow"></div>
-
-    <!-- Slide 1: Portada -->
-    <div class="slide active" id="slide-0">
-        <p style="letter-spacing: 3px; color: var(--accent-gold); margin-bottom: 20px;">REPORTE DE GESTIÓN & ESTRATEGIA</p>
-        <h1>Estación <span class="highlight">392</span></h1>
-        <p style="max-width: 600px; text-align: center; margin-top: 30px; line-height: 1.6; color: var(--text-dim);">
-            Del punto de equilibrio al crecimiento exponencial.<br>
-            Análisis Enero 2026 y Plan de Acción Bimestral.
-        </p>
-        <div style="margin-top: 50px; font-size: 0.9rem; border-top: 1px solid #333; padding-top: 20px;">
-            Presentado por Santiago Nacucchio
-        </div>
-    </div>
-
-    <!-- Slide 2: La Foto de Enero -->
-    <div class="slide" id="slide-1">
-        <h2>La Foto de Enero</h2>
-        <p class="metric-sub">Facturación Total Mensual Cerrada</p>
+    <div class="slider-container">
         
-        <div style="font-size: 5rem; font-weight: 700; color: var(--text-light); margin: 20px 0;">
-            $34.2 <span style="font-size: 2rem; color: var(--text-dim);">Millones</span>
+        <!-- SLIDE 1: PORTADA -->
+        <div class="slide active">
+            <div style="letter-spacing: 4px; color: var(--gold); margin-bottom: 1rem; font-size: 0.9rem;">REPORTE DE GESTIÓN & ESTRATEGIA</div>
+            <h1>ESTACIÓN <span class="highlight-text">392</span></h1>
+            <p class="subtitle">
+                De la Supervivencia ($1.5M) a la Rentabilidad ($3.0M).<br>
+                Plan de Acción Bimestral.
+            </p>
+            <div style="margin-top: 2rem; padding: 1rem 2rem; background: rgba(245,158,11,0.1); border-radius: 50px; color: var(--gold);">
+                Deslizá para comenzar ➔
+            </div>
         </div>
 
-        <div class="card-grid">
-            <div class="card">
-                <div class="metric-label">En Blanco (Tarjetas/QR)</div>
-                <div class="metric-big" style="font-size: 2rem;">$24.9M</div>
-                <div class="metric-sub">73% - Solidez Bancaria</div>
-            </div>
-            <div class="card">
-                <div class="metric-label">Efectivo (Caja Blue)</div>
-                <div class="metric-big" style="font-size: 2rem;">$9.3M</div>
-                <div class="metric-sub">27% - Cintura Operativa</div>
+        <!-- SLIDE 2: FOTO DEL MES (DATOS REALES) -->
+        <div class="slide">
+            <h2>Resultados Enero 2026</h2>
+            <div class="grid-2">
+                <div class="card">
+                    <div class="label">Facturación Total</div>
+                    <div class="big-number">$34.2 M</div>
+                    <div style="font-size: 0.9rem; color: var(--success);">✔ Superavit Operativo</div>
+                </div>
+                <div class="card">
+                    <div class="label">Mix de Ingreso</div>
+                    <!-- Pie Chart SVG -->
+                    <svg viewBox="0 0 100 100" class="chart-svg" style="height: 150px;">
+                        <circle cx="50" cy="50" r="40" fill="transparent" stroke="#334155" stroke-width="20" />
+                        <!-- 73% Blanco -->
+                        <circle cx="50" cy="50" r="40" fill="transparent" stroke="#3B82F6" stroke-width="20" stroke-dasharray="183 251" stroke-dashoffset="0" transform="rotate(-90 50 50)" />
+                        <!-- 27% Efectivo -->
+                        <circle cx="50" cy="50" r="40" fill="transparent" stroke="#F59E0B" stroke-width="20" stroke-dasharray="68 251" stroke-dashoffset="-183" transform="rotate(-90 50 50)" />
+                        <text x="50" y="55" text-anchor="middle" fill="white" font-size="12" font-weight="bold">Mix</text>
+                    </svg>
+                    <div style="display:flex; justify-content:center; gap:15px; margin-top:10px; font-size: 0.8rem;">
+                        <span style="color:#3B82F6">● 73% Blanco</span>
+                        <span style="color:#F59E0B">● 27% Efectivo</span>
+                    </div>
+                </div>
             </div>
         </div>
-        <p style="margin-top: 30px; color: var(--success);">
-            ✓ Costos fijos ($11M) cubiertos. El negocio es rentable hoy.
-        </p>
+
+        <!-- SLIDE 3: EL OBJETIVO DIARIO (BAR CHART SVG) -->
+        <div class="slide">
+            <h2>El Desafío Diario</h2>
+            <p class="subtitle">Hoy estamos cubriendo costos, pero lejos del potencial real del local.</p>
+            
+            <!-- Robust SVG Bar Chart -->
+            <svg viewBox="0 0 400 220" class="chart-svg">
+                <!-- Grid Lines -->
+                <line x1="50" y1="50" x2="380" y2="50" stroke="#334155" stroke-dasharray="4"/>
+                <text x="40" y="55" fill="#64748B" font-size="10" text-anchor="end">$3.0M</text>
+                
+                <line x1="50" y1="125" x2="380" y2="125" stroke="#334155" stroke-dasharray="4"/>
+                <text x="40" y="130" fill="#64748B" font-size="10" text-anchor="end">$1.5M</text>
+
+                <!-- Bar 1: Current -->
+                <rect x="80" y="145" width="60" height="55" fill="#64748B" rx="4" />
+                <text x="110" y="140" fill="white" font-size="14" font-weight="bold" text-anchor="middle">$1.1M</text>
+                <text x="110" y="215" fill="#94A3B8" font-size="12" text-anchor="middle">HOY</text>
+
+                <!-- Bar 2: Floor -->
+                <rect x="190" y="125" width="60" height="75" fill="#F59E0B" rx="4" opacity="0.8"/>
+                <text x="220" y="120" fill="#F59E0B" font-size="14" font-weight="bold" text-anchor="middle">$1.5M</text>
+                <text x="220" y="215" fill="#F59E0B" font-size="12" text-anchor="middle">MINIMO</text>
+
+                <!-- Bar 3: Goal -->
+                <rect x="300" y="50" width="60" height="150" fill="#10B981" rx="4" />
+                <text x="330" y="45" fill="#10B981" font-size="14" font-weight="bold" text-anchor="middle">$3.0M</text>
+                <text x="330" y="215" fill="#10B981" font-size="12" text-anchor="middle">META</text>
+            </svg>
+        </div>
+
+        <!-- SLIDE 4: ESTRATEGIA DE INGRESOS -->
+        <div class="slide">
+            <h2>¿Cómo llegamos a $3M?</h2>
+            <div class="grid-2">
+                <div class="card" style="border-color: var(--accent-blue);">
+                    <div class="label" style="color: var(--accent-blue);">ESTRATEGIA 1: OCUPACIÓN</div>
+                    <div class="big-number">Mediodía</div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">
+                        Tenemos capacidad ociosa de 12 a 16hs.
+                        <br><br>
+                        <strong>Acción:</strong> Menú Ejecutivo Rápido.<br>
+                        <strong>Meta:</strong> 40 cubiertos extra x $20k = <strong>$800.000 extra diarios.</strong>
+                    </p>
+                </div>
+                <div class="card" style="border-color: var(--gold);">
+                    <div class="label" style="color: var(--gold);">ESTRATEGIA 2: EVENTOS</div>
+                    <div class="big-number">La Bala de Plata</div>
+                    <p style="font-size: 0.9rem; color: var(--text-muted);">
+                        Un evento de 70 personas factura lo mismo que 2 días enteros malos.
+                        <br><br>
+                        <strong>Dato:</strong> 1 Evento = <strong>$2.8 Millones</strong> (Cubre la brecha mensual).
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        <!-- SLIDE 5: BLINDAJE (COSTOS) -->
+        <div class="slide">
+            <h2>Blindaje de Ganancia</h2>
+            <p class="subtitle">Subir la venta no sirve si la cocina es un colador.</p>
+            
+            <div style="display: flex; gap: 20px; flex-wrap: wrap; justify-content: center;">
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; width: 250px;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">🛡️</div>
+                    <h3 style="margin:0; font-size: 1.2rem;">Recetas Cargadas</h3>
+                    <p style="font-size: 0.8rem; color: #94A3B8;">El sistema descuenta stock real. Se acabó el "a ojo".</p>
+                </div>
+                <div style="background: rgba(255,255,255,0.05); padding: 20px; border-radius: 12px; width: 250px;">
+                    <div style="font-size: 2rem; margin-bottom: 10px;">📋</div>
+                    <h3 style="margin:0; font-size: 1.2rem;">Manuales Listos</h3>
+                    <p style="font-size: 0.8rem; color: #94A3B8;">Procesos definidos para Barra, Cocina y Salón.</p>
+                </div>
+            </div>
+
+            <div style="margin-top: 3rem; font-style: italic; color: var(--gold);">
+                "Eficiencia Operativa + Volumen de Venta = $3M Diarios"
+            </div>
+        </div>
+
     </div>
 
-    <!-- Slide 3: El Desafío Diario -->
-    <div class="slide" id="slide-2">
-        <h2>El Objetivo de Nico</h2>
-        <p style="text-align: center; max-width: 700px; margin-bottom: 20px;">
-            Hoy estamos promediando <strong>$1.1M diarios</strong>. <br>
-            El piso de seguridad es $1.5M. La meta de éxito es $3.0M.
-        </p>
-
-        <div class="chart-container">
-            <div class="bar-group">
-                <div class="bar bar-current">
-                    <div class="bar-value">$1.1M</div>
-                </div>
-                <div class="bar-label">PROMEDIO HOY</div>
-            </div>
-            <div class="bar-group">
-                <div class="bar bar-min">
-                    <div class="bar-value" style="color: #F59E0B;">$1.5M</div>
-                </div>
-                <div class="bar-label" style="color: #F59E0B; font-weight: bold;">MINIMO DIARIO</div>
-            </div>
-            <div class="bar-group">
-                <div class="bar bar-goal">
-                    <div class="bar-value" style="color: #22c55e;">$3.0M</div>
-                </div>
-                <div class="bar-label" style="color: #22c55e; font-weight: bold;">META REAL</div>
-            </div>
+    <!-- NAVIGATION -->
+    <div class="nav-bar">
+        <button class="nav-btn" onclick="prevSlide()">❮ Atrás</button>
+        <div class="progress-dots" id="dots">
+            <!-- Dots generated by JS -->
         </div>
+        <button class="nav-btn" onclick="nextSlide()">Sig ❯</button>
+    </div>
+
+    <script>
+        let currentSlide = 0;
+        const slides = document.querySelectorAll('.slide');
+        const dotsContainer = document.getElementById('dots');
+        const totalSlides = slides.length;
+
+        // Init Dots
+        slides.forEach((_, idx) => {
+            const dot = document.createElement('div');
+            dot.classList.add('dot');
+            if(idx === 0) dot.classList.add('active');
+            dotsContainer.appendChild(dot);
+        });
+
+        const dots = document.querySelectorAll('.dot');
+
+        function updateUI() {
+            // Slides
+            slides.forEach((s, i) => {
+                s.classList.remove('active');
+                if (i === currentSlide) s.classList.add('active');
+            });
+            // Dots
+            dots.forEach((d, i) => {
+                d.classList.remove('active');
+                if (i === currentSlide) d.classList.add('active');
+            });
+        }
+
+        function nextSlide() {
+            currentSlide = (currentSlide + 1) % totalSlides;
+            updateUI();
+        }
+
+        function prevSlide() {
+            currentSlide = (currentSlide - 1 + totalSlides) % totalSlides;
+            updateUI();
+        }
+
+        // Touch Swipe Logic
+        let touchstartX = 0;
+        let touchendX = 0;
         
-        <p style="margin-top: 20px; font-style: italic; color: var(--text-dim);">
-            La brecha se cierra atacando los horarios muertos.
-        </p>
-    </div>
+        document.addEventListener('touchstart', e => touchstartX = e.changedTouches[0].screenX);
+        document.addEventListener('touchend', e => {
+            touchendX = e.changedTouches[0].screenX;
+            if (touchendX < touchstartX - 50) nextSlide();
+            if (touchendX > touchstartX + 50) prevSlide();
+        });
 
-    <!-- Slide 4: Estrategia -->
-    <div class="slide" id="slide-3">
-        <h2>Plan de Ataque: "Llenar el Día"</h2>
-        <div class="strategy-row">
-            <div class="strategy-item">
-                <div style="color: var(--accent-gold); font-weight: bold; margin-bottom: 10px;">MAÑANA (08-12hs)</div>
-                <h3 style="margin-bottom: 10px;">Volumen & Take Away</h3>
-                <p style="font-size: 0.9rem; color: var(--text-dim);">
-                    Promo agresiva de café + tostado para llevar. Captar al oficinista que pasa rápido.
-                </p>
-            </div>
-            <div class="strategy-item" style="border-left-color: #EF4444;">
-                <div style="color: #EF4444; font-weight: bold; margin-bottom: 10px;">MEDIODÍA (12-16hs)</div>
-                <h3 style="margin-bottom: 10px;">Ejecutivo Veloz</h3>
-                <p style="font-size: 0.9rem; color: var(--text-dim);">
-                    Hoy estamos al 50%. Lanzamos menú de 2 pasos a precio competitivo. Objetivo: rotar mesas rápido.
-                </p>
-            </div>
-            <div class="strategy-item" style="border-left-color: #10B981;">
-                <div style="color: #10B981; font-weight: bold; margin-bottom: 10px;">NOCHE (20-Cierre)</div>
-                <h3 style="margin-bottom: 10px;">Ticket Alto</h3>
-                <p style="font-size: 0.9rem; color: var(--text-dim);">
-                    Ya funciona bien. Foco en subir el ticket promedio con vinos y postres de autor.
+        // Keyboard
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') nextSlide();
+            if (e.key === 'ArrowLeft') prevSlide();
+        });
+    </script>
+</body>
+                    </html> Foco en subir el ticket promedio con vinos y postres de autor.
                 </p>
             </div>
         </div>
